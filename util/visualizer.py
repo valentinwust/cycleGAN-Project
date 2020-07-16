@@ -34,9 +34,21 @@ def save_images(webpage, visuals, image_path, aspect_ratio=1.0, width=256):
 
     for label, im_data in visuals.items():
         im = util.tensor2im(im_data)
-        image_name = '%s_%s.png' % (name, label)
-        save_path = os.path.join(image_dir, image_name)
-        util.save_image(im, save_path, aspect_ratio=aspect_ratio)
+        print(im.shape)
+        if im.shape[0] <=3:
+            image_name = '%s_%s.png' % (name, label)
+            save_path = os.path.join(image_dir, image_name)
+            util.save_image(im, save_path, aspect_ratio=aspect_ratio)
+        else:
+            im_expanded = im[...,3]
+            im = im[...,:3]
+            image_name = '%s_%s.png' % (name, label)
+            save_path = os.path.join(image_dir, image_name)
+            util.save_image(im, save_path, aspect_ratio=aspect_ratio)
+            image_name_expanded = '%s_%s_expanded.png' % (name, label)
+            save_path_expanded = os.path.join(image_dir, image_name_expanded)
+            util.save_image(im_expanded, save_path_expanded, aspect_ratio=aspect_ratio)
+        
         ims.append(image_name)
         txts.append(label)
         links.append(image_name)
@@ -158,8 +170,16 @@ class Visualizer():
             # save images to the disk
             for label, image in visuals.items():
                 image_numpy = util.tensor2im(image)
-                img_path = os.path.join(self.img_dir, 'epoch%.3d_%s.png' % (epoch, label))
-                util.save_image(image_numpy, img_path)
+                if image_numpy.shape[0] <=3:
+                    img_path = os.path.join(self.img_dir, 'epoch%.3d_%s.png' % (epoch, label))
+                    util.save_image(image_numpy, img_path)
+                else:
+                    image_numpy_expanded = image_numpy[...,3]
+                    image_numpy = image_numpy[...,:3]
+                    img_path = os.path.join(self.img_dir, 'epoch%.3d_%s.png' % (epoch, label))
+                    util.save_image(image_numpy, img_path)
+                    img_path_expanded = os.path.join(self.img_dir, 'epoch%.3d_expanded_%s.png' % (epoch, label))
+                    util.save_image(image_numpy_expanded, img_path_expanded)
 
             # update website
             webpage = html.HTML(self.web_dir, 'Experiment name = %s' % self.name, refresh=1)
