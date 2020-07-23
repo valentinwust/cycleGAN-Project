@@ -13,7 +13,7 @@ else:
     VisdomExceptionBase = ConnectionError
 
 
-def save_images(webpage, visuals, image_path, aspect_ratio=1.0, width=256):
+def save_images(webpage, visuals, image_path, aspect_ratio=1.0, width=256, save_expanded=True):
     """Save images to the disk.
 
     Parameters:
@@ -45,9 +45,10 @@ def save_images(webpage, visuals, image_path, aspect_ratio=1.0, width=256):
             image_name = '%s_%s.png' % (name, label)
             save_path = os.path.join(image_dir, image_name)
             util.save_image(im, save_path, aspect_ratio=aspect_ratio)
-            image_name_expanded = '%s_%s_expanded.png' % (name, label)
-            save_path_expanded = os.path.join(image_dir, image_name_expanded)
-            util.save_image(im_expanded, save_path_expanded, aspect_ratio=aspect_ratio)
+            if save_expanded:
+                image_name_expanded = '%s_%s_expanded.png' % (name, label)
+                save_path_expanded = os.path.join(image_dir, image_name_expanded)
+                util.save_image(im_expanded, save_path_expanded, aspect_ratio=aspect_ratio)
         
         ims.append(image_name)
         txts.append(label)
@@ -178,8 +179,9 @@ class Visualizer():
                     image_numpy = image_numpy[...,:3]
                     img_path = os.path.join(self.img_dir, 'epoch%.3d_%s.png' % (epoch, label))
                     util.save_image(image_numpy, img_path)
-                    img_path_expanded = os.path.join(self.img_dir, 'epoch%.3d_expanded_%s.png' % (epoch, label))
-                    util.save_image(image_numpy_expanded, img_path_expanded)
+                    if self.opt.save_expanded:
+                        img_path_expanded = os.path.join(self.img_dir, 'epoch%.3d_expanded_%s.png' % (epoch, label))
+                        util.save_image(image_numpy_expanded, img_path_expanded)
 
             # update website
             webpage = html.HTML(self.web_dir, 'Experiment name = %s' % self.name, refresh=1)
