@@ -112,6 +112,11 @@ def get_transform(opt, params=None, grayscale=False, method=Image.BICUBIC, conve
     return transforms.Compose(transform_list)
 
 
+def __resize(image,shape, method=Image.BICUBIC):
+    bands = image.split()
+    bands = [C.resize(shape,method) for C in bands]
+    return(Image.merge('RGBA', bands))
+
 def __make_power_2(img, base, method=Image.BICUBIC):
     ow, oh = img.size
     h = int(round(oh / base) * base)
@@ -120,7 +125,7 @@ def __make_power_2(img, base, method=Image.BICUBIC):
         return img
 
     __print_size_warning(ow, oh, w, h)
-    return img.resize((w, h), method)
+    return __resize(img,(w, h), method)
 
 
 def __scale_width(img, target_size, crop_size, method=Image.BICUBIC):
